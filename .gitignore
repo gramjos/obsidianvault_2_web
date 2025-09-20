@@ -11,3 +11,6 @@ wheels/
 
 # other, mayber from uv init
 .python-version
+
+# swap files
+*.swp

@@ -12,31 +12,35 @@ def die(message: str) -> NoReturn:
 
 def process_directory(source: pathlib.Path, dest: pathlib.Path) -> None:
     """
-    Recursively processes a directory. Assumes the current `source` directory is valid.
-    - Markdown files are copied.
-    - Other files are copied as-is.
-    - Subdirectories are processed only if they are valid (contain a README.md).
+    Recursively processes a directory based on the project rules.
+    - A directory is valid only if it contains a 'README.md'.
+    - Markdown files are converted to HTML.
+    - All files from a valid directory are copied to the destination.
     """
+    print(f"\nProcessing directory: {source}")
 
+    # Copy all files from the current valid directory
     for item in source.iterdir():
-        print(f'Iteratig unit: {item=}')
         dest_item = dest / item.name
-        print(f' : {dest_item=}')
+        if item.is_file() and item.suffix == '.md':
+            print(f"  Copying file: {item.name}")
+            shutil.copy2(item, dest_item)
+            # convert
+            obsidian_2_html.to_html(dest_item)
+        else: 
+            print(f'  ...skipping {item=}')
+
+    # Now, process valid subdirectories
+    for item in source.iterdir():
         if item.is_dir():
             # Rule: A subdirectory is only valid if it contains a 'README.md'.
             if (item / "README.md").is_file():
-                # If valid, create the destination dir and recurse
-                dest_item.mkdir(exist_ok=True)
+                print(f"Found valid subdirectory: {item}")
+                dest_item = dest / item.name
+                dest_item.mkdir()
                 process_directory(item, dest_item)
             else:
-                print(f"Skipping invalid directory (no README.md): {item}")
-        elif item.is_file() and item.suffix == ".md":
-            # Copy all files from the valid source directory
-            print(f"  Copying: {item.name}")
-            shutil.copy2(item, dest_item)
-            obsidian_2_html.toWeb(dest_item) 
-        else: 
-            print(f'...skipped {item=}')
+                print(f"Skipping invalid subdirectory (no README.md): {item}")
 
 def main() -> None:
     """Main function to run the site generator."""
@@ -57,28 +61,22 @@ def main() -> None:
 
     # Rule: The root directory must contain a README.md to be processed.
     if not (source_dir / "README.md").is_file():
-        print(f"Warning: Root directory '{source_dir}' is not valid (no README.md). No output will be generated.")
-        return
+        die(f"Root directory '{source_dir}' is not a valid vault (no README.md).")
 
     # --- Start processing only if the root is valid ---
-
-    # Create a destination directory name
     dest_dir = pathlib.Path(f"{source_dir.name}_ready_2_serve")
 
-    # If the destination directory already exists, remove it
     if dest_dir.exists():
         print(f"Removing existing destination directory: {dest_dir}")
         shutil.rmtree(dest_dir)
 
-    # Create the destination directory
     dest_dir.mkdir()
+    print(f"Starting conversion from '{source_dir}' to '{dest_dir}'...\n")
 
-    print(f"Starting conversion from '{source_dir=}' to '{dest_dir=}'...\n")
-
-    # Start the recursive processing from the valid root
     try:
         process_directory(source_dir, dest_dir)
         print("\nConversion complete.")
+        print(f"Output generated in: {dest_dir.resolve()}")
     except Exception as e:
         die(f"An error occurred during processing: {e}")
 
