@@ -14,3 +14,6 @@ wheels/
 
 # swap files
 *.swp
+
+# output build
+try_hosting_Vault_ready_2_serve/

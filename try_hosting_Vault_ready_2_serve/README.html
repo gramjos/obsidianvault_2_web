@@ -4,6 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>README</title>
+  <style>
+    pre {
+      background-color: #e6f7ff; /* Blue tint */
+      padding: 1em;
+      border-radius: 5px;
+      position: relative;
+      overflow-x: auto;
+    }
+    pre code {
+      font-family: monospace;
+      background-color: transparent;
+    }
+    .copy-button {
+      position: absolute;
+      top: 0.5em;
+      right: 0.5em;
+      padding: 0.25em 0.5em;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      background: #fff;
+      cursor: pointer;
+    }
+    .copy-button:hover {
+      background: #eee;
+    }
+  </style>
 </head>
 <body>
   <main>
@@ -13,8 +39,30 @@
 <p>Free Speech is 🔥</p>
 <p>$$2+2$$</p>
 <p>This is your new *vault*. by G. Joseph J.</p>
-<p>Make a note of something, <a href="https://help.obsidian.md/Plugins/Importer">[create a link]], or try [the Importer</a>!</p>
+<p>Make a note of something, <a href="https://help.obsidian.md/Plugins/Importer" target="_blank">[create a link]], or try [the Importer</a>!</p>
 <p>When you're ready, delete this note and make the vault your own.</p>
   </main>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.copy-button').forEach(button => {
+        button.addEventListener('click', () => {
+          const preElement = button.parentElement;
+          const codeElement = preElement.querySelector('code');
+          if (!codeElement) return;
+
+          navigator.clipboard.writeText(codeElement.innerText).then(() => {
+            const originalText = button.innerText;
+            button.innerText = 'Copied!';
+            setTimeout(() => {
+              button.innerText = originalText;
+            }, 2000);
+          }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            button.innerText = 'Error';
+          });
+        });
+      });
+    });
+  </script>
 </body>
 </html>

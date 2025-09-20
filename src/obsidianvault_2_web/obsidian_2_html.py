@@ -16,6 +16,7 @@ def to_html(md_file_path: pathlib.Path) -> None:
     md_lines = md_file_path.read_text(encoding="utf-8").splitlines()
     html_body_lines: list[str] = []
     in_code_block = False
+    code_block_content: list[str] = []
 
     i = 0
     while i < len(md_lines):
@@ -25,19 +26,26 @@ def to_html(md_file_path: pathlib.Path) -> None:
         if line.strip().startswith("```"):
             if not in_code_block:
                 in_code_block = True
-                lang = line.strip()[3:]  # Capture language for syntax highlighting
-                html_body_lines.append(f'<pre><code class="language-{lang}">')
-                html_body_lines.append('<button class="copy-button">Copy</button>')
+                lang = line.strip()[3:]
+                i += 1
+                continue
             else:
                 in_code_block = False
+                escaped_code = "\n".join(
+                    l.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                    for l in code_block_content
+                )
+                html_body_lines.append("<pre>")
+                html_body_lines.append('<button class="copy-button">Copy</button>')
+                html_body_lines.append(f'<code class="language-{lang}">')
+                html_body_lines.append(escaped_code)
                 html_body_lines.append("</code></pre>")
-            i += 1
-            continue
-        
+                code_block_content = []
+                i += 1
+                continue
+
         if in_code_block:
-            # Escape HTML special characters inside code block
-            escaped_line = line.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-            html_body_lines.append(escaped_line)
+            code_block_content.append(line)
             i += 1
             continue
 
@@ -63,8 +71,8 @@ def to_html(md_file_path: pathlib.Path) -> None:
         # Bold text: **text** -> <strong>text</strong>
         processed_line = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", processed_line)
         # External links: [text](url) -> <a href="url">text</a>
-        processed_line = re.sub(r"\[(.*?)\]\((https?://.*?)\)", r'<a href="\2">\1</a>', processed_line)
-        
+        processed_line = re.sub(r"\[(.*?)\]\((https?://.*?)\)", r'<a href="\2" target="_blank">\1</a>', processed_line)
+
         # Wrap in paragraph tags
         html_body_lines.append(f"<p>{processed_line}</p>")
         i += 1
@@ -72,22 +80,22 @@ def to_html(md_file_path: pathlib.Path) -> None:
     # --- Construct the final HTML page ---
     page_title = md_file_path.stem
     html_body = "\n".join(html_body_lines)
-    
-    html_content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{page_title}</title>
-</head>
-<body>
-  <main>
-    <h1>{page_title}</h1>
-{html_body}
-  </main>
-</body>
-</html>"""
-    
+
+    # Read the template file
+    template_path = pathlib.Path(__file__).parent / "template.html"
+    try:
+        html_template = template_path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        print(f"Error: Template file not found at {template_path}")
+        # As a fallback, use a minimal HTML structure
+        html_template = """<!DOCTYPE html>
+<html><head><title>{{PAGE_TITLE}}</title></head>
+<body><h1>{{PAGE_TITLE}}</h1>{{HTML_BODY}}</body></html>"""
+
+    # Replace placeholders with actual content
+    html_content = html_template.replace("{{PAGE_TITLE}}", page_title)
+    html_content = html_content.replace("{{HTML_BODY}}", html_body)
+
     # Create the path for the new .html file and write to it
     html_file_path = md_file_path.with_suffix(".html")
     html_file_path.write_text(html_content, encoding="utf-8")
