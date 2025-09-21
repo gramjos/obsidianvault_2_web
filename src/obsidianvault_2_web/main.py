@@ -27,14 +27,15 @@ def process_directory(source: pathlib.Path, dest: pathlib.Path) -> None:
             shutil.copy2(item, dest_item)
             # convert
             obsidian_2_html.to_html(dest_item)
-        else: 
-            print(f'  ...skipping {item=}')
+        elif not item.is_dir():
+            print(f' ...skipping this non-dir {item=}')
 
     # Now, process valid subdirectories
     for item in source.iterdir():
         if item.is_dir():
             # Rule: A subdirectory is only valid if it contains a 'README.md'.
-            if (item / "README.md").is_file():
+            # Rule: graphic folder exception
+            if (item / "README.md").is_file() or item.name == 'graphics':
                 print(f"Found valid subdirectory: {item}")
                 dest_item = dest / item.name
                 dest_item.mkdir()
