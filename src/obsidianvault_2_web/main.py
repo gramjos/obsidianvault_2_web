@@ -22,11 +22,12 @@ def process_directory(source: pathlib.Path, dest: pathlib.Path) -> None:
     # Copy all files from the current valid directory
     for item in source.iterdir():
         dest_item = dest / item.name
-        if item.is_file() and item.suffix == '.md':
+        if item.is_file() and item.suffix in {'.md', '.png'}:
             print(f"  Copying file: {item.name}")
             shutil.copy2(item, dest_item)
-            # convert
-            obsidian_2_html.to_html(dest_item)
+            if item.suffix == '.md':
+                obsidian_2_html.to_html(dest_item)
+
         elif not item.is_dir():
             print(f' ...skipping this non-dir {item=}')
 
