@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physics</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2em; }
+    nav ul { list-style-type: none; padding: 0; margin: 0 0 2em 0; }
+    nav li { display: inline-block; margin-right: 1em; }
+    nav a { color: #007bff; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+    h1 { font-size: 2em; font-weight: bold; margin-bottom: 1em; }
+    p { margin-bottom: 1em; }
+    pre { background-color: #e6f7ff; padding: 1em; border-radius: 5px; position: relative; overflow-x: auto; }
+    pre code { font-family: monospace; background-color: transparent; }
+    .copy-button { position: absolute; top: 0.5em; right: 0.5em; padding: 0.25em 0.5em; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer; }
+    .copy-button:hover { background: #eee; }
+  </style>
+  <script type="module" src="/view-route.js"></script>
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <nav>
+  <ul>
+    <li><a href="/physics.html">physics</a></li>
+  </ul>
+</nav>
+  <main>
+    <h1>README</h1>
+<p>here</p>
+  </main>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.copy-button').forEach(button => {
+        button.addEventListener('click', () => {
+          const preElement = button.parentElement;
+          const codeElement = preElement.querySelector('code');
+          if (!codeElement) return;
+
+          navigator.clipboard.writeText(codeElement.innerText).then(() => {
+            const originalText = button.innerText;
+            button.innerText = 'Copied!';
+            setTimeout(() => {
+              button.innerText = originalText;
+            }, 2000);
+          }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            button.innerText = 'Error';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
