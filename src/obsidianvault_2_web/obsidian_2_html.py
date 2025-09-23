@@ -73,19 +73,19 @@ def to_html(md_file_path: pathlib.Path) -> None:
         # Regex for image with width and height: ![[image.png|100x200]]
         processed_line = re.sub(
             r"!\[\[([^|\]]+)\|(\d+)x(\d+)\]\]",
-            r'<img src="graphics/\1" alt="\1" width="\2" height="\3">',
+            r'<img src="\1" alt="\1" width="\2" height="\3">',
             processed_line
         )
         # Regex for image with width only: ![[image.png|100]]
         processed_line = re.sub(
             r"!\[\[([^|\]]+)\|(\d+)\]\]",
-            r'<img src="graphics/\1" alt="\1" width="\2">',
+            r'<img src="\1" alt="\1" width="\2">',
             processed_line
         )
         # Regex for image with no size: ![[image.png]]
         processed_line = re.sub(
             r"!\[\[([^|\]]+)\]\]",
-            r'<img src="graphics/\1" alt="\1">',
+            r'<img src="\1" alt="\1">',
             processed_line
         )
        
