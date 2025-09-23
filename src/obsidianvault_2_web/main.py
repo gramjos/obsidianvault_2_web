@@ -3,7 +3,9 @@ import argparse
 import pathlib
 import shutil
 from typing import NoReturn
-from . import obsidian_2_html
+
+from .obsidian_2_html import to_html
+from .folder_stats import get_file_statistics   
 
 def die(message: str) -> NoReturn:
     """Prints an error message and exits the program."""
@@ -26,7 +28,7 @@ def process_directory(source: pathlib.Path, dest: pathlib.Path) -> None:
             print(f"  Copying file: {item.name}")
             shutil.copy2(item, dest_item)
             if item.suffix == '.md':
-                obsidian_2_html.to_html(dest_item)
+                to_html(dest_item)
 
         elif not item.is_dir():
             print(f' ...skipping this non-dir {item=}')
@@ -81,6 +83,9 @@ def main() -> None:
         print(f"Output generated in: {dest_dir.resolve()}")
     except Exception as e:
         die(f"An error occurred during processing: {e}")
+
+    # Check/Test what was made
+    get_file_statistics(dest_dir) 
 
 if __name__ == "__main__":
     main()

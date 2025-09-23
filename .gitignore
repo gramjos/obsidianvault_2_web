@@ -15,5 +15,7 @@ wheels/
 # swap files
 *.swp
 
+.DS_Store
+**/.DS_Store/
 # output build
-# try_hosting_Vault_ready_2_serve/
+try_hosting_Vault_ready_2_serve/
