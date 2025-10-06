@@ -19,3 +19,7 @@ wheels/
 **/.DS_Store/
 # output build
 try_hosting_Vault_ready_2_serve/
+
+# Test output directories
+*_ready_2_serve/
+public/
